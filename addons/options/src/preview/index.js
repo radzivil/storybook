@@ -1,4 +1,4 @@
-import addons from '@storybook/addons';
+import addons, { makeDecorator } from '@storybook/addons';
 import { EVENT_ID } from '../shared';
 
 // init function will be executed once when the storybook loads for the
@@ -21,6 +21,8 @@ function withRegexProp(object, propName) {
   return hasOwnProp(object, propName) ? { [propName]: regExpStringify(object[propName]) } : {};
 }
 
+let globalOptions = {};
+
 // setOptions function will send Storybook UI options when the channel is
 // ready. If called before, options will be cached until it can be sent.
 export function setOptions(newOptions) {
@@ -39,5 +41,23 @@ export function setOptions(newOptions) {
     ...withRegexProp(newOptions, 'hierarchyRootSeparator'),
   };
 
+  globalOptions = options;
   channel.emit(EVENT_ID, { options });
 }
+
+export const withOptions = makeDecorator({
+  name: 'withOptions',
+  parameterName: 'options',
+  wrapper: (getStory, context, { options: inputOptions, parameters }) => {
+    const channel = addons.getChannel();
+    const options = {
+      ...globalOptions,
+      ...inputOptions,
+      ...parameters,
+    };
+    console.log({ options, globalOptions, inputOptions, parameters });
+
+    channel.emit(EVENT_ID, { options });
+    return getStory(context);
+  },
+});

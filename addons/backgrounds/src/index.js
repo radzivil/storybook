@@ -12,7 +12,7 @@ const subscription = () => () => {
 };
 
 export const withBackgrounds = makeDecorator({
-  name: 'backgrounds',
+  name: 'withBackgrounds',
   parameterName: 'backgrounds',
   skipIfNoParametersOrOptions: true,
   allowDeprecatedUsage: true,
